@@ -41,9 +41,17 @@ grid()
  * @param rspace integer Defaults to 0. Number of spacer columns to the right
  */
 column(width, lspace = 0, rspace = 0)
-  margin-left: _get_gutter_width(lspace)
-  margin-right: _get_gutter_width(rspace)
+  -webkit-box-sizing: border-box
+  -moz-box-sizing: border-box
+  box-sizing: border-box
+  
+  pad = _get_gutter_width(0)
+  lg = _get_gutter_width(lspace)
+  rg = _get_gutter_width(rspace)
+  margin: pad rg pad lg
+  padding: pad pad pad pad
   width: _get_grid_width(width)
+  float: left
 
 
 /**
