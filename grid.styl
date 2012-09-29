@@ -1,0 +1,131 @@
+num_columns = 12
+column_ratio = 0.6180340 // Inverse of Golden Ratio
+max_px_width = 960px
+min_px_width = 320px
+
+
+/**
+ * Sets the main grid constants
+ * 
+ * @param integer cols The max number of columns in the grid. Defaults to 12
+ * @param float ratio The ratio of column to grid width. A float between
+ *                    1 (100% column width) and 0 (100% gutter width). Defaults to
+ *                    the inverse of the golden ratio (0.6180340)
+ * @param max pixels The maximum width of the grid in pixels. Defaults to 960px
+ * @param max pixels The maximum width of the grid in pixels. Defaults to 320px
+ */
+setup_grid(cols, ratio, max_px, min_px)
+  num_columns = cols
+  column_ratio = min(max(ratio, 0), 1)
+  max_px_width = (max_px)px
+  min_px_width = (min_px)px
+
+
+/**
+ * Mixin used for the main grid container
+ */
+grid()
+  width: 100%
+  padding: 0
+  max-width: max_px_width
+  min-width: min_px_width
+
+
+/**
+ * Column mixin. Given the column width, and optional
+ * column spacing to the left or right, calculates the 
+ * width, and left/right margins.
+ * 
+ * @param integer width Number of columns to span
+ * @param lspace integer Defaults to 0. Number of spacer columns to the left
+ * @param rspace integer Defaults to 0. Number of spacer columns to the right
+ */
+column(width, lspace = 0, rspace = 0)
+  margin-left: _get_gutter_width(lspace)
+  margin-right: _get_gutter_width(rspace)
+  width: _get_grid_width(width)
+
+
+/**
+ * Return the pixel width of a single column, relative to the 
+ * max pixel width and the ratio of column to gutter.
+ * 
+ * @param pixels max_px_width Max width of the entire grid
+ * @param integer num_columns Number of columns in the grid
+ * @param float ratio Ratio of column width to gutter width. Should
+ *              be a float between 1 and 0, where 1 means no gutter.
+ * @return pixels Width of a single column
+ */
+_get_column_px_width(max_px_width, num_columns, ratio)
+  return (max_px_width / num_columns) * ratio
+
+
+/**
+ * Return the pixel width of a single gutter, relative to the 
+ * max pixel width and the ratio of column to gutter.
+ * 
+ * @param pixels max_px_width Max width of the entire grid
+ * @param integer num_columns Number of columns in the grid
+ * @param float ratio Ratio of column width to gutter width. Should
+ *              be a float between 1 and 0, where 1 means no gutter.
+ * @return pixels Width of a single gutter
+ */
+_get_gutter_px_width(max_px_width, num_columns, ratio)
+  return (max_px_width / num_columns) * (1 - ratio)
+
+
+/**
+ * Returns the width percentage of a single column
+ * 
+ * @return percentage
+ */
+_get_column_percentage()
+  column_px = _get_column_px_width(max_px_width, num_columns, column_ratio)
+  return ((column_px / max_px_width) * 100)%
+
+
+/**
+ * Returns the width percentage of a single gutter
+ * 
+ * @return percentage
+ */
+_get_gutter_percentage()
+  gutter_px = _get_gutter_px_width(max_px_width, num_columns, column_ratio)
+  return ((gutter_px / max_px_width) * 100)%
+
+
+/**
+ * Returns the width of an element spanning n
+ * number of columns.
+ * 
+ * @param integer column_span
+ * @return percentage
+ */
+_get_grid_width(column_span)
+  gutter_span = max((column_span - 1), 0)
+  column_width = column_span * _get_column_percentage()
+  gutter_width = gutter_span * _get_gutter_percentage()
+  return column_width + gutter_width
+
+
+/**
+ * Returns the width percentage of a gutter, optionally
+ * spanning spanning additional columns
+ * 
+ * @param integer push Defaults to 0
+ * @return percentage
+ */
+_get_gutter_width(push = 0)
+  abs_push = abs(push)
+  if push >= 0
+    dir = 1
+  else
+    dir = -1
+  
+  adjust = _get_grid_width(abs_push)
+  if abs_push > 0
+    adjust = adjust + _get_gutter_percentage()
+  
+  gutter = ((_get_gutter_percentage() / 2) + adjust)%
+  return gutter * dir
+
